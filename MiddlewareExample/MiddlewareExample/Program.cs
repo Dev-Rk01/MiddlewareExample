@@ -1,3 +1,4 @@
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -13,20 +14,64 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 
+//app.Use(async (context, next) =>
+//{
+//	Console.WriteLine($"Logic before executing the next delegate in the Use method {1}");
+//    await next.Invoke();
+//    Console.WriteLine($"Logic after executing the next delegate in the Use method {2}");
+//});
+
+//app.Run(async (context) =>
+//{
+//    Console.WriteLine($"Writing the response to the client in the Run method {3}");
+//    Console.WriteLine($"Hello from the middleware component {4}.");
+//    await context.Response.WriteAsync($"Last");
+//});
+
+
+//app.Use(async (context, next) =>
+//{
+//	context.Response.StatusCode = 200;
+//	await context.Response.WriteAsync($"Hello from the middleware component {1}.");
+//	await next.Invoke();
+//});
+
+//app.Run(async context =>
+//{
+//	Console.WriteLine($"Writtin the response to the clien in the run method {2}");
+
+//	await context.Response.WriteAsync($"Hello from the middleware component {3}.");
+//});
+
 app.Use(async (context, next) =>
 {
-	Console.WriteLine($"Logic before executing the next delegate in the Use method {1}");
-    await next.Invoke();
-    Console.WriteLine($"Logic after executing the next delegate in the Use method {2}");
+	Console.WriteLine($"Logic before excuting the next delegate in the use method");
+	await next.Invoke();
+	Console.WriteLine($"Logic after excuting the next delegate in the use method");
 });
 
-app.Run(async (context) =>
+app.Map("/usingmap", builder =>
 {
-    Console.WriteLine($"Writing the response to the client in the Run method {3}");
-    Console.WriteLine($"Hello from the middleware component {4}.");
-    await context.Response.WriteAsync($"Last");
+	builder.Use(async (context, next) =>
+	{
+		Console.WriteLine("Map branch logic in the use method before the next delegate");
+		await next.Invoke();
+		Console.WriteLine("map branch logic in the use method after the next delegate");
+		await context.Response.WriteAsync("Hello from the map branch");
+	});
+
+	//builder.Run(async context =>
+	//{
+	//	Console.WriteLine("Map branch logic in the run method");
+	//	await context.Response.WriteAsync("Hello from the map branch");
+	//});
 });
 
+app.Run(async context =>
+{
+	Console.WriteLine("Writing the response to the client in the run method");
+	await context.Response.WriteAsync("Hello from the middleware component");
+});
 
 app.MapControllers();
 
